@@ -4,15 +4,8 @@
 
 
 .data
-BCDNUM: .byte '9'
-.byte '2'
-.byte '5'        
-.byte '2'
-.byte '9' 
-.byte '6' 
-.byte '7'
-.byte '9'
-NUMBER: .byte '0'
+BCDNUM: .word 0x92529679
+NUMBER: .byte 0
 .text
 
 .globl main
@@ -20,22 +13,27 @@ main:
 
 MOV R2, #8@used to keep count of the decimal place
 EOR R3, R3@used to store result in decimal format
-MOV R5, #10
-LDR R0, =BCDNUM@ load start address of BCDNUM
+MOV R5, #0xF
+MOV R7, #10
+LDR R0, =BCDNUM@ load address of BCDNUM
+LDR R0, [R0]
 
 loop: @loop one by one for all decimal places, 7 to 0
 SUBS R2, #1
 BMI exit_loop
 
-LDRB R4, [R0], #1 @load digit(in ascii) for current decimal place
-AND R4, R4, #0x0F @consider only LSB 4 bits
+LSL R1, R2, #2 @R1<-[R2]*4, R1 stores the number of bits 0xF needs to be left shifted to create mask
+LSL R8, R5, R1 @R8<-[R5]<<[R1],create mask to extarct current decimal place digit
+AND R4, R0, R8 @R4 <- R0 AND R8, AND by mask to get digit
+LSR R4, R1@R4<- [R4]>>[R1], Right shift the digit to LSB 4 bits
 
 MOV R6, R2 @R6<-[R2], R6 stores the current decimal place
+
 
   loop_mul:@ R4 <- [R4] * 10 power[R6] 
   SUBS R6, #1 
   BMI exit_loop_mul
-  MUL R4, R4, R5
+  MUL R4, R4, R7
   B loop_mul
 
   exit_loop_mul:
