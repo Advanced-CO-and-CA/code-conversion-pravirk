@@ -27,17 +27,7 @@ LSL R8, R5, R1 @R8<-[R5]<<[R1],create mask to extarct current decimal place digi
 AND R4, R0, R8 @R4 <- R0 AND R8, AND by mask to get digit
 LSR R4, R1@R4<- [R4]>>[R1], Right shift the digit to LSB 4 bits
 
-MOV R6, R2 @R6<-[R2], R6 stores the current decimal place
-
-
-  loop_mul:@ R4 <- [R4] * 10 power[R6] 
-  SUBS R6, #1 
-  BMI exit_loop_mul
-  MUL R4, R4, R7
-  B loop_mul
-
-  exit_loop_mul:
-  ADD R3, R4 @ store 
+MLA R3, R3, R7, R4@R3<- [R3] * 10 + [R4]
 
 B loop
 
